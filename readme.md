@@ -1,35 +1,17 @@
-# INF99X: Sample Course
+﻿# Cosmos DB로 데이터베이스 마이그레이션
 
-- **[Download Latest Student Handbook and AllFiles Content](../../releases/latest)**
-- **Are you a MCT?** - Have a look at our [GitHub User Guide for MCTs](https://microsoftlearning.github.io/MCT-User-Guide/)
-- **Need to manually build the lab instructions?** - Instructions are available in the [MicrosoftLearning/Docker-Build](https://github.com/MicrosoftLearning/Docker-Build) repository
+이 리포지토리에는 **Cosmos DB로 데이터베이스 마이그레이션** 워크샵의 연습에 필요한 랩 문서와 소스 코드가 포함되어 있습니다.
 
-## What are we doing?
+## 랩 2: Cosmos DB로 MongoDB 마이그레이션
 
-- To support this course, we will need to make frequent updates to the course content to keep it current with the Azure services used in the course.  We are publishing the lab instructions and lab files on GitHub to allow for open contributions between the course authors and MCTs to keep the content current with changes in the Azure platform.
+이 랩에서는 기존 MongoDB 데이터베이스를 가져와 Cosmos DB로 마이그레이션합니다. 마이그레이션을 수행할 때는 Azure Database Migration Service를 사용합니다. 또한 MongoDB 데이터베이스를 사용하는 기존 애플리케이션이 Cosmos DB 데이터베이스에 대신 연결하도록 다시 구성하는 방법도 알아봅니다.
 
-- We hope that this brings a sense of collaboration to the labs like we've never had before - when Azure changes and you find it first during a live delivery, go ahead and make an enhancement right in the lab source.  Help your fellow MCTs.
+이 랩의 내용은 일련의 IoT 디바이스에서 온도 데이터를 캡처하는 예제 시스템을 기준으로 합니다. 온도는 타임스탬프와 함께 MongoDB 데이터베이스에 기록됩니다. 각 디바이스에는 고유 ID가 지정되어 있습니다. 이 랩에서 실행할 MongoDB 애플리케이션은 이러한 디바이스를 시뮬레이트하고 데이터베이스에 데이터를 저장합니다. 그리고 사용자가 각 디바이스 관련 통계 정보를 쿼리할 수 있는 두 번째 애플리케이션도 사용할 것입니다. MongoDB에서 Cosmos DB로 데이터베이스를 마이그레이션한 후에는 두 애플리케이션이 모두 Cosmos DB에 연결하도록 구성하여 계속 올바르게 작동하는지 확인합니다.
 
-## How should I use these files relative to the released MOC files?
+## 랩 3: Cosmos DB로 Cassandra 마이그레이션
 
-- The instructor handbook and PowerPoints are still going to be your primary source for teaching the course content.
+이 랩에서는 데이터 집합 2개를 Cassandra에서 Cosmos DB로 마이그레이션합니다. 이 마이그레이션에서는 두 가지 방법으로 데이터를 이동합니다. 먼저 Cassandra에서 데이터를 내보낸 다음 CQLSH COPY 명령을 사용하여 데이터베이스를 Cosmos DB로 가져옵니다. 그리고 나서 Spark를 사용하여 데이터를 마이그레이션합니다. 그 후에는 원래 Cassandra 데이터베이스에 저장되어 있었던 데이터를 쿼리하는 애플리케이션을 실행하고 해당 애플리케이션이 Cosmos DB에 연결하도록 다시 구성하여 마이그레이션이 정상적으로 완료되었는지 확인합니다. 다시 구성한 애플리케이션을 실행한 결과는 다시 구성하기 전과 같아야 합니다.
 
-- These files on GitHub are designed to be used in conjunction with the student handbook, but are in GitHub as a central repository so MCTs and course authors can have a shared source for the latest lab files.
+이 랩에서는 전자 상거래 시스템 관련 시나리오를 진행합니다. 이 시스템에서는 고객이 상품을 주문할 수 있습니다. 고객 및 주문 세부 정보는 Cassandra 데이터베이스에 기록됩니다. 그리고 특정 애플리케이션이 특정 고객의 주문 목록, 특정 제품 주문, 다양한 집계(예: 접수된 주문 수 등)와 같은 요약을 생성합니다.
 
-- It will be recommended that for every delivery, trainers check GitHub for any changes that may have been made to support the latest Azure services, and get the latest files for their delivery.
-
-## What about changes to the student handbook?
-
-- We will review the student handbook on a quarterly basis and update through the normal MOC release channels as needed.
-
-## How do I contribute?
-
-- Any MCT can submit a pull request to the code or content in the GitHub repro, Microsoft and the course author will triage and include content and lab code changes as needed.
-
-- You can submit bugs, changes, improvement and ideas.  Find a new Azure feature before we have?  Submit a new demo!
-
-## Notes
-
-### Classroom Materials
-
-It is strongly recommended that MCTs and Partners access these materials and in turn, provide them separately to students.  Pointing students directly to GitHub to access Lab steps as part of an ongoing class will require them to access yet another UI as part of the course, contributing to a confusing experience for the student. An explanation to the student regarding why they are receiving separate Lab instructions can highlight the nature of an always-changing cloud-based interface and platform. Microsoft Learning support for accessing files on GitHub and support for navigation of the GitHub site is limited to MCTs teaching this course only.
+이 두 랩을 실행할 때는 Azure Cloud Shell과 Azure Portal을 사용합니다.
