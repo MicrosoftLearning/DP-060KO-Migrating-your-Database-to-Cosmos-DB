@@ -70,7 +70,7 @@ namespace DeviceDataQuery
                         var data = stats.ToList();
                         foreach (var results in data)
                         {
-                            Console.WriteLine($"Device: {results["_id"]}, Readings: {results["NumReadings"]}, Lowest: {results["LowestReading"]}, Highest: {results["HighestReading"]}, Average: {results["AverageTemperature"]}, Latest: {results["LatestReading"]}");
+                            Console.WriteLine($"Device: {deviceNum}, Readings: {results["NumReadings"]}, Lowest: {results["LowestReading"]}, Highest: {results["HighestReading"]}, Average: {results["AverageTemperature"]}, Latest: {results["LatestReading"]}");
                         }
                     }
                 }
