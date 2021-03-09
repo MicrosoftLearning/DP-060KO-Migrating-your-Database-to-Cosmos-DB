@@ -1,32 +1,27 @@
-﻿---
-lab:
-    title: 'Cosmos DB로 MongoDB 워크로드 마이그레이션'
-    module: '모듈 2: Cosmos DB로 MongoDB 워크로드 마이그레이션'
----
- 
-- [랩 2: Cosmos DB로 MongoDB 워크로드 마이그레이션](#lab-2-migrate-mongdb-workloads-to-cosmos-db)
-  - [연습 1: 설정](#exercise-1-setup)
-    - [태스크 1: 리소스 그룹 및 가상 네트워크 만들기](#task-1-create-a-resource-group-and-virtual-network)
-    - [태스크 2: MongoDB 데이터베이스 서버 만들기](#task-2-create-a-mongodb-database-server)
-    - [태스크 3: MongoDB 데이터베이스 구성](#task-3-configure-the-mongodb-database)
-  - [연습 2: MongoDB 데이터베이스에 데이터 입력/데이터베이스 쿼리](#exercise-2-populate-and-query-the-mongodb-database)
-    - [태스크 1: MongoDB 데이터베이스에 데이터를 입력하는 데 사용할 앱 빌드/실행](#task-1-build-and-run-an-app-to-populate-the-mongodb-database)
-    - [태스크 2: MongoDB 데이터베이스를 쿼리하는 데 사용할 두 번째 앱 빌드/실행](#task-2-build-and-run-another-app-to-query-the-mongodb-database)
-  - [연습 3: Cosmos DB로 MongoDB 데이터베이스 마이그레이션](#exercise-3-migrate-the-mongodb-database-to-cosmos-db)
-    - [태스크 1: Cosmos 계정 및 데이터베이스 만들기](#task-1-create-a-cosmos-account-and-database)
-    - [태스크 2: Database Migration Service 만들기](#task-2-create-the-database-migration-service)
-    - [태스크 3: 새 마이그레이션 프로젝트 만들기/실행](#task-3-create-and-run-a-new-migration-project)
-    - [태스크 4: 마이그레이션이 정상적으로 완료되었는지 확인](#task-4-verify-that-migration-was-successful)
-  - [연습 4: Cosmos DB를 사용하도록 기존 애플리케이션 다시 구성/실행](#exercise-4-reconfigure-and-run-existing-applications-to-use-cosmos-db)
-    - [태스크 1: MongoDB 집계를 지원하도록 설정](#task-1-enable-mongodb-aggregation-support)
-    - [태스크 2: DeviceDataQuery 애플리케이션 다시 구성](#task-2-reconfigure-the-devicedataquery-application)
-  - [연습 5: 정리](#exercise-5-clean-up)
-
+﻿
 # 랩 2: Cosmos DB로 MongoDB 워크로드 마이그레이션
+<!-- TOC -->
 
+- [랩 2: Cosmos DB로 MongoDB 워크로드 마이그레이션](#lab-2-migrate-mongdb-workloads-to-cosmos-db)
+    - [연습 1: 설정](#exercise-1-setup)
+        - [작업 1: 리소스 그룹 및 가상 네트워크 만들기](#task-1-create-a-resource-group-and-virtual-network)
+        - [작업 2: MongoDB 데이터베이스 서버 만들기](#task-2-create-a-mongodb-database-server)
+        - [작업 3: MongoDB 데이터베이스 구성](#task-3-configure-the-mongodb-database)
+    - [연습 2: MongoDB 데이터베이스 채우기/쿼리](#exercise-2-populate-and-query-the-mongodb-database)
+        - [작업 1: 앱 빌드/실행을 통한 MongoDB 데이터베이스 채우기](#task-1-build-and-run-an-app-to-populate-the-mongodb-database)
+        - [작업 2: 추가 앱 빌드/실행을 통한 MongoDB 데이터베이스 쿼리](#task-2-build-and-run-another-app-to-query-the-mongodb-database)
+    - [연습 3: Cosmos DB로 MongoDB 데이터베이스 마이그레이션](#exercise-3-migrate-the-mongodb-database-to-cosmos-db)
+        - [작업 1: Cosmos 계정 및 데이터베이스 만들기](#task-1-create-a-cosmos-account-and-database)
+        - [작업 2: Database Migration Service 만들기](#task-2-create-the-database-migration-service)
+        - [작업 3: 새 마이그레이션 프로젝트 만들기/실행](#task-3-create-and-run-a-new-migration-project)
+        - [작업 4: 마이그레이션이 정상적으로 완료되었는지 확인](#task-4-verify-that-migration-was-successful)
+    - [연습 4: Cosmos DB를 사용하도록 기존 애플리케이션 다시 구성/실행](#exercise-4-reconfigure-and-run-existing-applications-to-use-cosmos-db)
+    - [연습 5: 정리](#exercise-5-clean-up)
+
+<!-- /TOC -->
 이 랩에서는 기존 MongoDB 데이터베이스를 가져와 Cosmos DB로 마이그레이션합니다. 마이그레이션을 수행할 때는 Azure Database Migration Service를 사용합니다. 또한 MongoDB 데이터베이스를 사용하는 기존 애플리케이션이 Cosmos DB 데이터베이스에 대신 연결하도록 다시 구성하는 방법도 알아봅니다.
 
-이 랩의 내용은 일련의 IoT 디바이스에서 온도 데이터를 캡처하는 예제 시스템을 기준으로 합니다. 온도는 타임스탬프와 함께 MongoDB 데이터베이스에 기록됩니다. 각 디바이스에는 고유 ID가 지정되어 있습니다. 이 랩에서 실행할 MongoDB 애플리케이션은 이러한 디바이스를 시뮬레이트하고 데이터베이스에 데이터를 저장합니다. 그리고 사용자가 각 디바이스 관련 통계 정보를 쿼리할 수 있는 두 번째 애플리케이션도 사용할 것입니다. MongoDB에서 Cosmos DB로 데이터베이스를 마이그레이션한 후에는 두 애플리케이션이 모두 Cosmos DB에 연결하도록 구성하여 계속 올바르게 작동하는지 확인합니다.
+이 랩의 내용은 일련의 IoT 디바이스에서 온도 데이터를 캡처하는 예제 시스템을 바탕으로 합니다. 온도는 타임스탬프와 함께 MongoDB 데이터베이스에 로그됩니다. 각 디바이스에는 고유 ID가 지정되어 있습니다. 이 랩에서 실행할 MongoDB 애플리케이션은 이러한 디바이스를 시뮬레이트하고 데이터베이스에 데이터를 저장합니다. 그리고 사용자가 각 디바이스 관련 통계 정보를 쿼리할 수 있는 두 번째 애플리케이션도 사용할 것입니다. MongoDB에서 Cosmos DB로 데이터베이스를 마이그레이션한 후에는 두 애플리케이션이 모두 Cosmos DB에 연결하도록 구성하여 계속 올바르게 작동하는지 확인합니다.
 
 랩을 실행할 때는 Azure Cloud Shell과 Azure Portal을 사용합니다.
 
@@ -34,7 +29,7 @@ lab:
 
 첫 번째 연습에서는 온도 디바이스에서 캡처한 데이터를 저장할 MongoDB 데이터베이스를 만듭니다.
 
-### 태스크 1: 리소스 그룹 및 가상 네트워크 만들기
+### 작업 1: 리소스 그룹 및 가상 네트워크 만들기
 
 1. 인터넷 브라우저에서 https://portal.azure.com으로 이동하여 로그인합니다.
 2. Azure Portal에서 **리소스 그룹**, **+추가**를 차례로 클릭합니다.
@@ -47,49 +42,53 @@ lab:
     | 지역 | 가장 가까운 위치 선택 |
 
 4. **만들기**를 클릭하고 리소스 그룹이 만들어질 때까지 기다립니다.
-5. Azure Portal의 왼쪽 창에서 **+ 리소스 만들기**를 클릭합니다.
+5. Azure Portal의 햄버거 메뉴에서 **+ 리소스 만들기**를 클릭합니다.
 6. **새로 만들기** 페이지의 **Marketplace 검색** 상자에 **가상 네트워크**를 입력한 후에 Enter 키를 누릅니다.
 7. **가상 네트워크** 페이지에서 **만들기**를 클릭합니다.
-8. **가상 네트워크 만들기** 페이지에서 다음 세부 정보를 입력하고 **만들기**를 클릭합니다.
+8. **가상 네트워크 만들기** 페이지에서 다음 세부 정보를 입력하고 **다음: IP 주소**를 클릭합니다.
 
     | 속성  | 값  |
     |---|---|
-    | 이름 | databasevnet |
-    | 주소 공간 | 10.0.0.0/24 |
     | 구독 | *\<사용자의 구독 이름\>* |
     | 리소스 그룹 | mongodbrg |
-    | 지역 | 리소스 그룹용으로 선택한 것과 같은 위치 선택 |
-    | 서브넷 이름 | default |
-    | 서브넷 주소 범위 | 10.0.0.0/28 |
-    | DDos 보호 | 기본 |
-    | 서비스 엔드포인트 | 사용 안 함 |
-    | 방화벽 | 사용 안 함 |
+    | 이름 | databasevnet |
+    | 지역 | 리소스 그룹에 지정한 것과 같은 위치 선택 |
+    
+9. **IP 주소** 페이지에서 **IPv4 주소 공간**을 **10.0.0.0/24**로 설정하고 **+ 서브넷 추가**를 클릭합니다.
 
-9. 가상 네트워크가 생성될 때까지 기다린 후에 다음 태스크를 계속 진행합니다.
+10. **서브넷 추가** 창에서 **서브넷 이름**을 **default**로, **서브넷 주소 범위**를 **10.0.0.0/28**로 설정하고 **추가**를 클릭합니다.
 
-### 태스크 2: MongoDB 데이터베이스 서버 만들기
+11. **IP 주소** 페이지에서 **default** 서브넷을 선택하고 **다음: 보안**을 클릭합니다.
 
-1. Azure Portal의 왼쪽 창에서 **+ 리소스 만들기**를 클릭합니다.
-2. **Marketplace 검색** 상자에 **MongoDB Certified by Bitnami**를 입력하고 Enter 키를 누릅니다.
-3. **MongoDB Certified by Bitnami** 페이지에서 **만들기**를 클릭합니다.
-4. **가상 머신 만들기** 페이지에서 다음 세부 정보를 입력하고 **다음: 디스크 \>**를 클릭합니다.
+12. **보안** 페이지에서 **DDoS Protection**이 **기본**으로, **방화벽**이 **사용 안 함**으로 설정되어 있는지 확인합니다. **검토 * 만들기**를 클릭합니다.
+
+13. **가상 네트워크 만들기** 페이지에서 **만들기**를 클릭합니다. 가상 네트워크가 만들어질 때까지 기다렸다가 다음 작업을 계속 진행합니다.
+
+### 작업 2: MongoDB 데이터베이스 서버 만들기
+
+1. Azure Portal의 햄버거 메뉴에서 **+ 리소스 만들기**를 클릭합니다.
+2. **Marketplace 검색** 상자에 **MongoDB Community** 를 입력하고 Enter 키를 누릅니다.
+3. **Marketplace** 페이지에서 **MongoDB Community on Ubuntu**를 클릭합니다.
+4. **MongoDB Community on Ubuntu** 페이지에서 **만들기**를 클릭합니다.
+5. **가상 머신 만들기** 페이지에서 다음 세부 정보를 입력하고 **다음: 디스크 \>**를 클릭합니다.
 
     | 속성  | 값  |
     |---|---|
     | 구독 | *\<사용자의 구독 이름\>* |
     | 리소스 그룹 | mongodbrg |
     | 가상 머신 이름 | mongodbserver | 
-    | 지역 | 리소스 그룹용으로 선택한 것과 같은 위치 선택 |
+    | 지역 | 리소스 그룹에 지정한 것과 같은 위치 선택 |
     | 가용성 옵션 | 인프라 중복이 필요하지 않습니다. |
-    | 이미지 | MongoDB Certified by Bitnami |
-    | 크기 | Standard A1 v2 |
+    | 이미지 | Ubuntu의 MongoDB Community 4.0 |
+    | Azure Spot 인스턴스 | 아니요 |
+    | 크기 | 표준 A1_v2 |
     | 인증 유형 | 암호 |
     | 사용자 이름 | azureuser |
     | 암호 | Pa55w.rdPa55w.rd |
     | 암호 확인 | Pa55w.rdPa55w.rd |
 
-5. **디스크** 페이지에서 기본 설정을 적용하고 **다음: 네트워킹 \>**을 클릭합니다.
-6. **네트워킹** 페이지에서 다음 세부 정보를 입력하고 **다음: 관리 \>**를 클릭합니다.
+6. **디스크** 페이지에서 기본 설정을 적용하고 **다음: 네트워킹 \>** 을 클릭합니다.
+7. **네트워킹** 페이지에서 다음 세부 정보를 입력하고 **다음: 관리 \>** 를 클릭합니다.
 
     | 속성  | 값  |
     |---|---|
@@ -98,19 +97,17 @@ lab:
     | 공용 IP | (신규) mongodbserver-ip |
     | NIC 네트워크 보안 그룹 | 고급 |
     ! 네트워크 보안 그룹 구성 | (신규) mongodbserver-nsg |
-    | 가속화된 네트워킹 | 해제 |
+    | 가속화된 네트워킹 | 꺼짐 |
     | 부하 분산 | 아니요 |
 
-7. **관리** 페이지에서 기본 설정을 적용하고 **다음: 고급 \>**을 클릭합니다.
-8. **고급** 페이지에서 기본 설정을 적용하고 **다음: 태그 \>**를 클릭합니다.
-9. **태그** 페이지에서 기본 설정을 적용하고 **다음: 검토 + 만들기 \>**를 클릭합니다.
-10. 유효성 검사 페이지에서 **만들기**를 클릭합니다.
-11. 가상 머신이 배포될 때까지 기다린 후에 다음 과정을 계속 진행합니다.
-12. Azure Portal의 왼쪽 창에서 **모든 리소스**를 클릭합니다.
-13. **모든 리소스** 페이지에서 **mongodbserver-nsg**를 클릭합니다.
-14. **mongodbserver-nsg** 페이지의 **설정**에서 **인바운드 보안 규칙**을 클릭합니다.
-15. **mongodbserver-nsg - 인바운드 보안 규칙** 페이지에서 **+ 추가**를 클릭합니다.
-16. **인바운드 보안 규칙 추가** 창에서 다음 세부 정보를 입력하고 **추가**를 클릭합니다.
+8. **관리** 페이지에서 기본 설정을 적용하고 **검토 + 만들기 \>** 를 클릭합니다.
+9. 유효성 검사 페이지에서 **만들기**를 클릭합니다.
+10. 가상 머신이 배포될 때까지 기다린 후에 다음 과정을 계속 진행합니다.
+11. Azure Portal의 햄버거 메뉴에서 **모든 리소스**를 클릭합니다.
+12. **모든 리소스** 페이지에서 **mongodbserver-nsg**를 클릭합니다.
+13. **mongodbserver-nsg** 페이지의 **설정**에서 **인바운드 보안 규칙**을 클릭합니다.
+14. **mongodbserver-nsg - 인바운드 보안 규칙** 페이지에서 **+ 추가**를 클릭합니다.
+15. **인바운드 보안 규칙 추가** 창에서 다음 세부 정보를 입력하고 **추가**를 클릭합니다.
 
     | 속성  | 값  |
     |---|---|
@@ -120,13 +117,15 @@ lab:
     | 대상 포트 범위 | 27017 |
     | 프로토콜 | 모두 |
     | 작업 | 허용 |
-    | 우선 순위 | 1020 |
+    | 우선 순위 | 1030 |
     | 이름 | Mongodb-port |
     | 설명 | 클라이언트가 MongoDB에 연결하는 데 사용하는 포트 |
 
-### 태스크 3: MongoDB 데이터베이스 구성
+### 작업 3: MongoDB 데이터베이스 구성
 
-1. Azure Portal의 왼쪽 창에서 **모든 리소스**를 클릭합니다.
+MongoDB 인스턴스는 기본적으로 인증하지 않아도 실행되도록 구성됩니다. 이 작업에서는 인증을 사용하도록 설정하고 마이그레이션 수행에 필요한 사용자 계정을 만듭니다. 그리고 테스트 애플리케이션이 데이터베이스를 쿼리하는 데 사용할 수 있는 계정도 추가합니다.
+
+1. Azure Portal의 햄버거 메뉴에서 **모든 리소스**를 클릭합니다.
 2. **모든 리소스** 페이지에서 **mongodbserver-ip**를 클릭합니다.
 3. **mongodbserver-ip** 페이지에 표시되는 **IP 주소**를 적어 둡니다.
 4. Azure Portal 상단의 도구 모음에서 **Cloud Shell**을 클릭합니다.
@@ -140,19 +139,50 @@ lab:
 
 8. 프롬프트에서 **yes**를 입력하여 연결을 계속 진행합니다.
 9. 암호 **Pa55w.rdPa55w.rd**를 입력합니다.
-10. 다음 명령을 입력하고 표시되는 루트 암호를 적어 둡니다.
+10. MongoDB 서비스를 중지합니다.
 
     ```bash
-    cat bitnami_credentials
+    sudo service mongod stop
     ```
 
-11. 다음 명령을 실행하여 MongoDB 데이터베이스에 연결합니다. 여기서 *\<암호\>*는 이전 단계에서 표시된 루트 암호로 바꾸세요. XFS 파일 시스템 사용 관련 경고는 무시하면 됩니다.
+11. **mongodb** 사용자로 bash 셸을 시작합니다.
 
     ```bash
-    mongo -u root -p <password>
+    sudo -u mongodb bash
     ```
 
-12. **>** 프롬프트에서 다음 명령을 실행합니다. 이러한 명령은 **DeviceData** 데이터베이스용으로 이름이 **deviceadmin**이고 암호가 **Pa55w.rd**인 새 사용자를 만듭니다. `db.shutdownserver();` 명령을 실행하면 오류가 몇 개 표시되지만 무시해도 됩니다.
+12. **mongodb** 사용자로 MongoDB 서비스를 로컬에서 다시 시작합니다.
+
+    ```bash
+    mongod --dbpath /data/mongo &
+    ```
+
+    서비스가 다시 시작되면 콘솔에 메시지가 여러 개 표시됩니다. Enter 키를 눌러 bash 명령 프롬프트를 표시합니다.
+
+13. 다음 명령을 실행하여 MongoDB 서비스에 연결합니다.
+
+    ```bash
+    mongo
+    ```
+
+14. **>** 프롬프트에서 다음 명령을 실행합니다. 이러한 명령을 실행하면 데이터베이스 서버에 대한 관리 및 모니터링 권한이 있는 새 사용자 **administartor**가 생성됩니다.
+
+    ```mongosh
+    use admin
+    db.createUser(
+        {
+            user: "administrator",
+            pwd: "Pa55w.rd",
+            roles: [
+                { role: "userAdminAnyDatabase", db: "admin" },
+                { role: "clusterMonitor", db:"admin" },
+                "readWriteAnyDatabase"
+            ]
+        }
+    )
+    ```
+
+15. 다음 명령을 실행하여 **DeviceData** 데이터베이스용으로 또 다른 사용자 **deviceadmin**을 만듭니다. `db.shutdownserver();` 명령을 실행하면 오류가 몇 개 표시되지만 무시해도 됩니다.
 
     ```mongosh
     use DeviceData;
@@ -168,35 +198,41 @@ lab:
     exit;
     ```
 
-13. 다음 명령을 실행하여 mongodb 서비스를 다시 시작합니다. 서비스가 오류 메시지 없이 다시 시작되고 포트 27017에서 수신 대기하는지 확인합니다.
-
-    ```bash
-    sudo /opt/bitnami/ctlscript.sh start
-    ```
-
-14. 다음 명령을 실행하여 이제 deviceadmin 사용자로 mongodb에 로그인할 수 있는지 확인합니다.
-
-    ```bash
-    mongo -u "deviceadmin" -p "Pa55w.rd" --authenticationDatabase DeviceData
-    ```
-
-15. **>** 프롬프트에서 다음 명령을 실행하여 mongo shell을 종료합니다.
-
-    ```mongosh
-    exit;
-    ```
-
-16. **bitnami@mongodbserver** 프롬프트에서 다음 명령을 입력하여 MongoDB 서버에서 연결을 끊고 Cloud Shell로 돌아옵니다.
+16. bash 프롬프트에서 **mongodb** 사용자로 실행 중인 bash 셸을 닫습니다.
 
     ```bash
     exit
     ```
 
-## 연습 2: MongoDB 데이터베이스에 데이터 입력/데이터베이스 쿼리
+17. 다음 명령을 실행하여 mongodb 서비스를 다시 시작합니다. 서비스가 오류 메시지 없이 다시 시작되고 포트 27017에서 수신 대기하는지 확인합니다.
+
+    ```bash
+    sudo service mongod start
+    ```
+
+18. 다음 명령을 실행하여 이제 deviceadmin 사용자로 mongodb에 로그인할 수 있는지 확인합니다.
+
+    ```bash
+    mongo -u "deviceadmin" -p "Pa55w.rd" --authenticationDatabase DeviceData
+    ```
+
+19. **>** 프롬프트에서 다음 명령을 실행하여 mongo shell을 종료합니다.
+
+    ```mongosh
+    exit;
+    ```
+
+20. bash 프롬프트에서 다음 명령을 실행하여 MongoDB 서버에서 연결을 끊고 Cloud Shell로 돌아옵니다.
+
+    ```bash
+    exit
+    ```
+
+## 연습 2: MongoDB 데이터베이스 채우기/쿼리
 
 지금까지 MongoDB 서버와 데이터베이스를 만들었습니다. 다음 단계에서는 이 데이터베이스에 데이터를 입력하고 데이터베이스를 쿼리할 수 있는 샘플 애플리케이션을 실행합니다.
 
-### 태스크 1: MongoDB 데이터베이스에 데이터를 입력하는 데 사용할 앱 빌드/실행
+### 작업 1: 앱 빌드/실행을 통한 MongoDB 데이터베이스 채우기
 
 1. Azure Cloud Shell에서 다음 명령을 실행하여 이 워크샵용 샘플 코드를 다운로드합니다.
 
@@ -253,7 +289,7 @@ lab:
 
     이 애플리케이션은 동시에 실행되는 디바이스 100개를 시뮬레이트합니다. 애플리케이션을 몇 분 정도 실행한 후에 Enter 키를 눌러 실행을 중지합니다.
 
-### 태스크 2: MongoDB 데이터베이스를 쿼리하는 데 사용할 두 번째 앱 빌드/실행
+### 작업 2: 추가 앱 빌드/실행을 통한 MongoDB 데이터베이스 쿼리
 
 1. **migration-workshop-apps/MongoDeviceDataCapture/DeviceDataQuery** 폴더로 이동합니다.
 
@@ -283,7 +319,7 @@ lab:
     code App.config
     ```
 
-    이전 태스크에서와 같이 **Address** 키의 값을 앞에서 적어 둔 MongoDB 서버의 IP 주소로 설정하고 파일을 저장한 후에 편집기를 닫습니다.
+    이전 작업에서와 같이 **Address** 키의 값을 앞에서 적어 둔 MongoDB 서버의 IP 주소로 설정하고 파일을 저장한 후에 편집기를 닫습니다.
 
 4. 애플리케이션을 빌드하고 실행합니다.
 
@@ -298,30 +334,29 @@ lab:
 
 다음 단계에서는 MongoDB 데이터베이스를 가져온 다음 Cosmos DB로 전송합니다.
 
-### 태스크 1: Cosmos 계정 및 데이터베이스 만들기
+### 작업 1: Cosmos 계정 및 데이터베이스 만들기
 
-1. Azure Portal로 돌아옵니다.
-2. 왼쪽 창에서 **+ 리소스 만들기**를 클릭합니다.
-3. **새로 만들기** 페이지의 **Marketplace 검색** 상자에 ***Azure Cosmos DB**를 입력한 후에 Enter 키를 누릅니다.
+1. Azure Portal로 돌아갑니다.
+2. 햄버거 메뉴에서 **+ 리소스 만들기**를 클릭합니다.
+3. **새로 만들기** 페이지의 **Marketplace 검색** 상자에 **Azure Cosmos DB** 를 입력한 후에 Enter 키를 누릅니다.
 4. **Azure Cosmos DB** 페이지에서 **만들기**를 클릭합니다.
 5. **Azure Cosmos DB 계정 만들기** 페이지에서 다음 설정을 입력하고 **검토 + 만들기**를 클릭합니다.
 
     | 속성  | 값  |
     |---|---|
-    | 구독 | 사용자의 구독 선택 |
+    | 구독 | 보유한 구독 선택 |
     | 리소스 그룹 | mongodbrg |
     | 계정 이름 | mongodb*nnn*. 여기서 *nnn*에는 임의로 선택한 숫자를 입력하면 됩니다. |
-    | API | Azure Cosmos DB for MongoDB API |
+    | Api | Azure Cosmos DB for MongoDB API |
     | 위치 | MongoDB 서버 및 가상 네트워크에 사용한 것과 같은 위치 지정 |
-    | 지리적 중복 | 사용 안 함 |
-    | 다중 영역 쓰기 | 사용 안 함 |
+    | 지리적 중복성 | 사용 안 함 |
+    | 다중 지역 쓰기 | 사용 안 함 |
 
 6. 유효성 검사 페이지에서 **만들기**를 클릭하고 Cosmos DB 계정이 배포될 때까지 기다립니다.
-7. 왼쪽 창에서 **Azure Cosmos DB**를 클릭합니다.
-8. **Azure Cosmos DB** 페이지에서 Cosmos DB 계정(**mongodb*nnn***)을 클릭합니다.
-9. **mongodb*nnn*** 페이지에서 **Data Explorer**를 클릭합니다.
-10. **Data Explorer** 창에서 **새 컬렉션**을 클릭합니다.
-11. **컬렉션 추가** 창에서 다음 설정을 지정하고 **확인**을 클릭합니다.
+7. Azure Portal의 햄버거 메뉴에서 **모든 리소스**를 클릭한 다음 새 Cosmos DB 계정(**mongodb*nnn***)을 클릭합니다.
+8. **mongodb*nnn*** 페이지에서 **Data Explorer**를 클릭합니다.
+9. **Data Explorer** 창에서 **새 컬렉션**을 클릭합니다.
+10. **컬렉션 추가** 창에서 다음 설정을 지정하고 **확인**을 클릭합니다.
 
     | 속성  | 값  |
     |---|---|
@@ -329,35 +364,39 @@ lab:
     | 데이터베이스 처리량 프로비전 | 선택 |
     | 처리량 | 1000 |
     | 컬렉션 ID | Temperatures |
-    | 공유 키 | deviceID |
+    | 스토리지 용량 | 무제한 |
+    | 분할 키 | deviceID |
+    | 분할 키가 100바이트보다 큼 | 선택하지 않은 상태로 유지 |
 
-### 태스크 2: Database Migration Service 만들기
+### 작업 2: Database Migration Service 만들기
 
-1. 왼쪽 창에서 **모든 서비스**를 클릭합니다.
-2. **모든 서비스** 페이지에서 **구독**을 클릭합니다.
+1. Azure Portal의 햄버거 메뉴에서 **모든 서비스**를 클릭합니다.
+2. **모든 서비스** 검색 상자에 **구독**을 입력하고 Enter 키를 누릅니다.
 3. **구독** 페이지에서 사용자의 구독을 클릭합니다.
 4. 구독 페이지의 **설정**에서 **리소스 공급자**를 클릭합니다.
 5. **이름으로 필터링** 상자에 **DataMigration**을 입력한 다음 **Microsoft.DataMigration**을 클릭합니다.
 6. **등록**을 클릭하고 **상태**가 **등록됨**으로 변경될 때까지 기다립니다. 변경된 상태를 확인하려면 **새로 고침**을 클릭해야 할 수 있습니다.
-7. 왼쪽 창에서 **+ 리소스 만들기**를 클릭합니다.
+7. Azure Portal의 햄버거 메뉴에서 **+ 리소스 만들기**를 클릭합니다.
 8. **새로 만들기** 페이지의 **Marketplace 검색** 상자에 **Azure Database Migration Service**를 입력한 후에 Enter 키를 누릅니다.
 9. **Azure Database Migration Service** 페이지에서 **만들기**를 클릭합니다.
-10. **Migration Service 만들기** 페이지에서 다음 설정을 입력하고 **만들기**를 클릭합니다.
+10. **Migration Service 만들기** 페이지에서 다음 설정을 입력하고 **다음: 네트워킹**을 클릭합니다.
 
     | 속성  | 값  |
     |---|---|
-    | 서비스 이름 | MongoDBMigration |
     | 구독 | 사용자의 구독 선택 |
-    | 리소스 그룹 선택 | mongodbrg |
-    | 위치 | 이전에 사용했던 것과 같은 위치 선택 |
-    | 가상 네트워크 | **가상 네트워크 선택 또는 만들기**를 클릭하고 **databasevnet/default**를 선택한 다음 **확인**을 클릭합니다. |
-    | 가격 책정 계층 | Standard: vCore 1개 |
+    | 리소스 그룹 | mongodbrg |
+    | 서비스 이름 | MongoDBMigration |
+    | 위치 | 이전에 사용한 것과 같은 위치 선택 |
+    | 서비스 모드 | Azure |
+    | 가격 책정 계층 | 표준: vCore 1개 |
 
-11. 계속하기 전에 서비스가 배포될 때까지 기다립니다. 이 작업은 몇 분 정도 걸립니다.
 
-### 태스크 3: 새 마이그레이션 프로젝트 만들기/실행
+11. **네트워킹** 페이지에서 **databasevnet/default**, **검토 + 만들기**를 차례로 선택합니다.
+12. **만들기**를 클릭하고 서비스가 배포될 때까지 기다린 후에 다음 작업을 계속 진행합니다. 이 작업은 몇 분 정도 걸립니다.
 
-1. 왼쪽 창에서 **리소스 그룹**을 클릭합니다.
+### 작업 3: 새 마이그레이션 프로젝트 만들기/실행
+
+1. Azure Portal의 햄버거 메뉴에서 **리소스 그룹**을 클릭합니다.
 2. **리소스 그룹** 창에서 **mongodbrg**를 클릭합니다.
 3. **mongodbrg** 창에서 **MongoDBMigration**을 클릭합니다.
 4. **MongoDBMigration** 페이지에서 **+ 새 마이그레이션 프로젝트**를 클릭합니다.
@@ -376,17 +415,19 @@ lab:
     |---|---|
     | 모드 | 표준 모드 |
     | 원본 서버 이름 | 이전에 적어 둔 **mongodbserver-ip** IP 주소의 값 지정 |
-    | 사용자 이름 | root |
-    | 암호 | 앞에서 bitnami_credentials 파일을 확인하여 적어 둔 mongodbserver VM의 root 사용자 암호 입력 |
-    | SSL 필요 | 비워 둠 |
+    | 서버 포트 | 27017 |
+    | 사용자 이름 | 관리자 역할 |
+    | 암호 | Pa55w.rd) |
+    | SSL 요구 | 비워 둠 |
+    | 서버에서 TLS 1.2를 사용함 | 선택 |
 
 7. **마이그레이션 정보** 페이지에서 다음 세부 정보를 입력하고 **저장**을 클릭합니다.
 
     | 속성  | 값  |
     |---|---|
     | 모드 | Cosmos DB 대상 선택 |
-    | 구독 | 사용자의 구독 선택 |
-    | Comos DB 이름 | mongodb*nnn* |
+    | 구독 | 보유한 구독 선택 |
+    | Comos DB 이름 선택 | mongodb*nnn* |
     | 연결 문자열 | Cosmos DB 계정용으로 생성된 연결 문자열 적용 |
 
 8. **대상 데이터베이스에 매핑** 페이지에서 다음 세부 정보를 입력하고 **저장**을 클릭합니다.
@@ -405,18 +446,18 @@ lab:
     | 이름 | Temperatures |
     | 대상 컬렉션 | Temperatures |
     | 처리량(RU/s) | 1000 |
-    | 공유 키 | deviceID |
+    | 분할 키 | deviceID |
     | 고유 | 비워 둠 |
 
-10. **마이그레이션 요약** 페이지의 **활동 이름** 필드에 **mongodb-migration**을 입력하고 **초기 데이터 복사 중에 RU 증가**를 선택한 후에 **마이그레이션 실행**을 클릭합니다.
-11. **mongodb-migration** 페이지에서 마이그레이션이 완료될 때까지 30초마다 **새로 고침**을 클릭합니다. 마이그레이션된 문서 수를 적어 둡니다.
+10. **마이그레이션 요약** 페이지의 **활동 이름** 필드에 **mongodb-migration**을 입력하고 **마이그레이션 중 RU 증가**를 선택한 후에 **마이그레이션 실행**을 클릭합니다.
+11. **mongodb-migration** 페이지에서 마이그레이션이 완료될 때까지 30초마다 **새로 고침**을 클릭합니다. 처리된 문서 수를 적어 둡니다.
 
-### 태스크 4: 마이그레이션이 정상적으로 완료되었는지 확인
+### 작업 4: 마이그레이션이 정상적으로 완료되었는지 확인
 
-1. 왼쪽 창에서 **Azure Cosmos DB**를 클릭합니다.
-2. **Azure Cosmos DB** 페이지에서 **mongodb*nnn***을 클릭합니다.
+1. Azure Portal의 햄버거 메뉴에서 **모든 리소스**를 클릭합니다.
+2. **모든 리소스** 페이지에서**mongodb*nnn***을 클릭합니다.
 3. **mongodb*nnn** 페이지에서 **Data Explorer**를 클릭합니다.
-4. **Data Explorer** 창에서 **Temperatures** 데이터베이스를 확장하고 **문서**를 클릭합니다.
+4. **Data Explorer** 창에서 **DeviceData** 데이터베이스와 **Temperatures** 컬렉션을 차례로 확장한 후 **문서**를 클릭합니다.
 5. **문서** 창에서 문서 목록을 스크롤합니다. 각 문서의 ID(**_id**)와 공유 키(**/deviceID**)가 표시됩니다.
 6. 아무 문서나 클릭합니다. 표시한 문서의 세부 정보가 나타납니다. 일반적인 문서의 형식은 다음과 같습니다.
 
@@ -450,13 +491,6 @@ lab:
 
 마지막 단계에서는 기존 MongoDB 애플리케이션이 Cosmos DB에 연결하도록 다시 구성하고 이전처럼 작동하는지 확인합니다. 이 프로세스에서는 애플리케이션이 데이터베이스에 연결하는 방식을 수정하되 애플리케이션의 논리는 그대로 유지해야 합니다.
 
-### 태스크 1: MongoDB 집계를 지원하도록 설정
-
-1. **mongodb*nnn*** 창의 **설정**에서 **미리 보기 기능**을 클릭합니다.
-2. **집계 파이프라인** 옆의 **사용**을 클릭합니다. 집계 파이프라인이 사용하도록 설정되는 동안 기다립니다. 이 기능은 Cosmos DB 데이터베이스에 MongoDB 집계 및 그룹화 작업 지원을 추가합니다. 집계 파이프라인이 사용 가능한 상태가 되려면 몇 분 정도 걸릴 수 있습니다. 브라우저 창을 새로 고쳐 기능의 최신 상태를 확인하세요.
-
-### 태스크 2: DeviceDataQuery 애플리케이션 다시 구성
-
 1. **mongodb*nnn*** 창의 **설정**에서 **연결 문자열**을 클릭합니다.
 2. **mongodb*nnn* 연결 문자열** 페이지에서 다음 설정을 적어 둡니다.
 
@@ -481,9 +515,9 @@ lab:
 
     | 설정  | 값  |
     |---|---|
-    | 주소 | **mongodb*nnn* 연결 문자열** 페이지의 호스트 |
-    | 사용자 이름 | **mongodb*nnn* 연결 문자열** 페이지의 사용자 이름 |
-    | 암호 | **mongodb*nnn* 연결 문자열** 페이지의 주 암호 |
+    | 주소 | **mongodb*nnn* 연결 문자열** 페이지의 **호스트** |
+    | 사용자 이름 | **mongodb*nnn* 연결 문자열** 페이지의 **사용자 이름** |
+    | 암호 | **mongodb*nnn* 연결 문자열** 페이지의 **주 암호** |
 
     완성된 파일은 다음과 같습니다.
 
@@ -495,7 +529,7 @@ lab:
             <add key="Collection" value="Temperatures" />
 
             <!-- Settings for MongoDB -->
-            <!--add key="Address" value="168.63.99.236" />
+            <!--add key="Address" value="nn.nn.nn.nn" />
             <add key="Port" value="27017" />
             <add key="Username" value="deviceadmin" />
             <add key="Password" value="Pa55w.rd" /-->
@@ -568,14 +602,14 @@ lab:
 
 ## 연습 5: 정리
 
-1. Azure Portal로 돌아옵니다.
-2. 왼쪽 창에서 **리소스 그룹**을 클릭합니다.
+1. Azure Portal로 돌아갑니다.
+2. 햄버거 메뉴에서 **리소스 그룹**을 클릭합니다.
 3. **리소스 그룹** 창에서 **mongodbrg**를 클릭합니다.
 4. **리소스 그룹 삭제**를 클릭합니다.
 5. **"mongodbrg"을(를) 삭제하시겠습니까?** 페이지의 **리소스 그룹 이름 입력** 상자에 **mongodbrg**를 입력하고 **삭제**를 클릭합니다.
 
 ---
-© 2019 Microsoft Corporation. All rights reserved.
+© 2020 Microsoft Corporation. All rights reserved.
 
 이 문서의 내용은 [Creative Commons Attribution 3.0 라이선스](https://creativecommons.org/licenses/by/3.0/legalcode)에 따라 제공되며 추가 약관이 적용될 수 있습니다. 상표, 로고, 이미지 등을 비롯하여 이 문서에 포함된 기타 모든 콘텐츠는 Creative Commons 라이선스 허여 범위 내에 포함되지 **않습니다**. 이 문서는 Microsoft 제품의 지적 재산에 대한 법적 권리를 제공하지 않습니다. 이 문서는 내부 참조용으로 복사하여 사용할 수 있습니다.
 
