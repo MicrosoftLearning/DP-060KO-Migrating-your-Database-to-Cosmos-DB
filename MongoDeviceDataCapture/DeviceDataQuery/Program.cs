@@ -97,11 +97,7 @@ namespace DeviceDataQuery
                     // Credential settings for CosmosDB Mongo API
                     //
 
-                    //UseSsl = true,
-                    //SslSettings = new SslSettings
-                    //{
-                    //    EnabledSslProtocols = SslProtocols.Tls12
-                    //},
+                    //UseTls = true,
                     //Credential = new MongoCredential("SCRAM-SHA-1", new MongoInternalIdentity(database, azureLogin.UserName), new PasswordEvidence(azureLogin.SecurePassword))
 
                     // End of Mongo API settings 
