@@ -29,9 +29,9 @@ lab:
 
 ## 참고
 
-이 랩의 전체 지침은 https://github.com/MicrosoftLearning/DP-060KO-Migrating-your-Database-to-Cosmos-DB/blob/master/Labs/Lab%202%20-%20Migrate%20MongoDB%20Workloads%20to%20Cosmos%20DB.md에서 제공됩니다.
+이 랩의 전체 지침은 https://github.com/MicrosoftLearning/DP-060KO-Migrating-your-Database-to-Cosmos-DB/blob/master/Labs/Lab%202%20-%20Migrate%20MongoDB%20Workloads%20to%20Cosmos%20DB.md 에서 제공됩니다.
 
-이 랩의 모든 파일은 https://github.com/MicrosoftLearning/DP-060KO-Migrating-your-Database-to-Cosmos-DB에 있습니다.
+이 랩의 모든 파일은 https://github.com/MicrosoftLearning/DP-060KO-Migrating-your-Database-to-Cosmos-DB 에 있습니다.
 
 학생은 랩을 수행하기 전에 랩 파일 복사본을 다운로드해야 합니다.
 
