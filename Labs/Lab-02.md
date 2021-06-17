@@ -1,4 +1,4 @@
-﻿---
+---
 lab:
     title: 'Cosmos DB로 MongoDB 마이그레이션'
     module: '모듈 2: Cosmos DB로 MongoDB 워크로드 마이그레이션'

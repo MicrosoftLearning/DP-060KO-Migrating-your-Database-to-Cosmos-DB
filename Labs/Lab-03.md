@@ -1,4 +1,4 @@
-﻿---
+---
 lab:
     title: 'Cosmos DB로 Cassandra 마이그레이션'
     module: '모듈 3: Cosmos DB로 Cassandra 워크로드 마이그레이션'
